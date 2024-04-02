@@ -15,6 +15,7 @@ def process_input():
 
 def process_file(name: str, data):
 	raw_bible = data[0]
+	word_map = {}
 	cur_index = 0
 	cur_bible = {
 		'm': {
@@ -58,6 +59,7 @@ def process_file(name: str, data):
 					},
 					'v': verse_text
 				}
+				add_to_word_map(word_map, verse_text, cur_index)
 				cur_index += len(verse_text)
 				cur_chapter['v'].append(cur_verse)
 
@@ -77,7 +79,16 @@ def process_file(name: str, data):
 
 	with open(f'bibles/{name}.json', 'w+') as file:
 		json.dump(cur_bible, file)
+	
+	with open(f'word_maps/{name}.json', 'w+') as file:
+		json.dump(word_map, file)
 				
+def add_to_word_map(word_map, verse_text, cur_index):
+	for index, word in enumerate(verse_text):
+		if word.lower() not in word_map:
+			word_map[word.lower()] = [index + cur_index]
+		else:
+			word_map[word.lower()].append(index + cur_index)
 				
 def sanitize_verse(verse):
 	# Add spaces around em dashes to split connected words
