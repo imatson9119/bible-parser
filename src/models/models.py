@@ -1,48 +1,44 @@
 from typing import List, TypedDict
 
 class VerseMetadata(TypedDict):
-	book: str
-	chapter: int
-	verse: int
-	loc: int
-	words: int
+	v: int
+	i: int
+	l: int
 
 class Verse(TypedDict):
-	metadata: VerseMetadata
-	content: List[str]
+	m: VerseMetadata
+	v: List[str]
 
 class ChapterMetadata(TypedDict):
-	book: str
-	chapter: int
-	loc: int
-	verses: int
-	words: int
+	c: int
+	i: int
+	l: int
+	nv: int
 
 class Chapter(TypedDict):
-	metadata: ChapterMetadata
-	content: List[Verse]
+	m: ChapterMetadata
+	v: List[Verse]
 
 class BookMetadata(TypedDict):
-	book: str
-	loc: int
-	chapters: int
-	verses: int
-	words: int
+	b: str
+	i: int
+	l: int
+	nc: int
+	nv: int
 
 class Book(TypedDict):
-	metadata: BookMetadata
-	content: List[Chapter]
+	m: BookMetadata
+	v: List[Chapter]
 
 
 class BibleMetadata(TypedDict):
-	translation: str
-	books: int
-	loc: int
-	chapters: int
-	words: int
-	verses: int
+	t: str
+	i: int
+	l: int
+	nb: int
+	nc: int
+	nv: int
 
 class Bible(TypedDict): 
-	metadata: BibleMetadata
-	content: List[Book]
-
+	m: BibleMetadata
+	v: List[Book]

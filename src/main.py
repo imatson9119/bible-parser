@@ -1,90 +1,90 @@
 
 
+from calendar import c
 import json
-from src.models.models import Bible
+from src.models.models import Bible, Book, Chapter, Verse
+import os
 
-def create_min_bible():
-	with open('bible-esv-formatted.json', 'r') as file:
-		bible: Bible = json.load(file)
-	
-	min_bible = {
+def process_input():
+	files = os.listdir('src/input')
+
+	for file in files:
+		with open(f'src/input/{file}', 'r') as fileRef:
+			data = json.load(fileRef)
+			process_file(file.split('.')[0], data)
+
+def process_file(name: str, data):
+	raw_bible = data[0]
+	cur_index = 0
+	cur_bible = {
 		'm': {
-			't': bible['metadata']['translation'],
-			'i': bible['metadata']['loc'],
-			'l': bible['metadata']['words'],
-			'nb': bible['metadata']['books'],
-			'nc': bible['metadata']['chapters'],
-			'nv': bible['metadata']['verses']
+			't': name,
+			'i': cur_index, 
+			'l': 0,
+			'nb': 0,
+			'nc': 0,
+			'nv': 0
 		},
 		'v': []
 	}
-
-	for book in bible['content']:
-		min_book = {
+	for book, book_data in raw_bible.items():
+		cur_book = {
 			'm': {
-				'b': book['metadata']['book'],
-				'i': book['metadata']['loc'],
-				'l': book['metadata']['words'],
-				'nc': book['metadata']['chapters'],
-				'nv': book['metadata']['verses']
+				'b': book,
+				'i': cur_index,
+				'l': 0,
+				'nc': 0,
+				'nv': 0
 			},
 			'v': []
 		}
-
-		for chapter in book['content']:
-			min_chapter = {
+		for chapter, chapter_data in book_data.items():
+			cur_chapter = {
 				'm': {
-					'c': chapter['metadata']['chapter'],
-					'i': chapter['metadata']['loc'],
-					'l': chapter['metadata']['words'],
-					'nv': chapter['metadata']['verses']
+					'c': chapter,
+					'i': cur_index,
+					'l': 0,
+					'nv': 0
 				},
 				'v': []
 			}
-
-			for verse in chapter['content']:
-				min_verse = {
+			for verse, verse_data in chapter_data.items():
+				verse_text = sanitize_verse(verse_data)
+				cur_verse = {
 					'm': {
-						'v': verse['metadata']['verse'],
-						'i': verse['metadata']['loc'],
-						'l': verse['metadata']['words']
+						'v': int(verse),
+						'i': cur_index,
+						'l': len(verse_text)
 					},
-					'v': verse['content']
+					'v': verse_text
 				}
+				cur_index += len(verse_text)
+				cur_chapter['v'].append(cur_verse)
 
-				min_chapter['v'].append(min_verse)
+			cur_chapter['m']['l'] = sum([verse['m']['l'] for verse in cur_chapter['v']])
+			cur_chapter['m']['nv'] = len(cur_chapter['v'])
+			cur_book['v'].append(cur_chapter)
 
-			min_book['v'].append(min_chapter)
+		cur_book['m']['l'] = sum([chapter['m']['l'] for chapter in cur_book['v']])
+		cur_book['m']['nc'] = len(cur_book['v'])
+		cur_book['m']['nv'] = sum([chapter['m']['nv'] for chapter in cur_book['v']])
+		cur_bible['v'].append(cur_book)
 
-		min_bible['v'].append(min_book)
-	
-	with open('bible-esv-min.json', 'w') as file:
-		json.dump(min_bible, file)
+	cur_bible['m']['l'] = sum([book['m']['l'] for book in cur_bible['v']])
+	cur_bible['m']['nb'] = len(cur_bible['v'])
+	cur_bible['m']['nc'] = sum([book['m']['nc'] for book in cur_bible['v']])
+	cur_bible['m']['nv'] = sum([book['m']['nv'] for book in cur_bible['v']])
 
-def generate_headers_dictionary():
-	with open('bible-esv-formatted.json', 'r') as file:
-		bible: Bible = json.load(file)	
-	
-	metadata = {}
-
-	for book in bible['content']:
-		metadata[book['metadata']["loc"]] = {'b': book['metadata']['book']}
-		for chapter in book['content']:
-			if chapter['metadata']['loc'] not in metadata:
-				metadata[chapter['metadata']['loc']] = {'c': chapter['metadata']['chapter']}
-			else:
-				metadata[chapter['metadata']['loc']]['c'] = chapter['metadata']['chapter']
-			for verse in chapter['content']:
-				if verse['metadata']['loc'] not in metadata:
-					metadata[verse['metadata']['loc']] = {'v': verse['metadata']['verse']}
-				else:
-					metadata[verse['metadata']['loc']]['v'] = verse['metadata']['verse']
-	
-	with open('bible-esv-headers.json', 'w') as file:
-		json.dump(metadata, file)
-	
+	with open(f'bibles/{name}.json', 'w+') as file:
+		json.dump(cur_bible, file)
+				
+				
+def sanitize_verse(verse):
+	# Add spaces around em dashes to split connected words
+	verse = verse.replace('\u2014', '\u2014 ')
+	return verse.split()
 
 
 
 if __name__ == '__main__':
-	generate_headers_dictionary()
+	process_input()
