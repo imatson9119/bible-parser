@@ -53,7 +53,7 @@ def process_file(name: str, data):
 				verse_text = sanitize_verse(verse_data)
 				cur_verse = {
 					'm': {
-						'v': int(verse),
+						'v': verse,
 						'i': cur_index,
 						'l': len(verse_text)
 					},
