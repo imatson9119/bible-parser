@@ -42,7 +42,7 @@ def process_file(name: str, data):
 		for chapter, chapter_data in book_data.items():
 			cur_chapter = {
 				'm': {
-					'c': chapter,
+					'c': int(chapter),
 					'i': cur_index,
 					'l': 0,
 					'nv': 0
@@ -53,7 +53,7 @@ def process_file(name: str, data):
 				verse_text = sanitize_verse(verse_data)
 				cur_verse = {
 					'm': {
-						'v': verse,
+						'v': int(verse),
 						'i': cur_index,
 						'l': len(verse_text)
 					},
