@@ -4,6 +4,10 @@ from calendar import c
 import json
 from src.models.models import Bible, Book, Chapter, Verse
 import os
+import re
+
+# pattern for all non-alphanumeric characters
+pattern = re.compile('[\\W_]+')
 
 def process_input():
 	files = os.listdir('src/input')
@@ -85,10 +89,11 @@ def process_file(name: str, data):
 				
 def add_to_word_map(word_map, verse_text, cur_index):
 	for index, word in enumerate(verse_text):
-		if word.lower() not in word_map:
-			word_map[word.lower()] = [index + cur_index]
+		sanitized_word = pattern.sub('', word).lower()
+		if sanitized_word not in word_map:
+			word_map[sanitized_word] = [index + cur_index]
 		else:
-			word_map[word.lower()].append(index + cur_index)
+			word_map[sanitized_word].append(index + cur_index)
 				
 def sanitize_verse(verse):
 	# Add spaces around em dashes to split connected words
