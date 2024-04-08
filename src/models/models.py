@@ -25,6 +25,7 @@ class BookMetadata(TypedDict):
 	l: int
 	nc: int
 	nv: int
+	bn: int
 
 class Book(TypedDict):
 	m: BookMetadata

@@ -32,6 +32,7 @@ def process_file(name: str, data):
 		},
 		'v': []
 	}
+	book_no = 0;
 	for book, book_data in raw_bible.items():
 		cur_book = {
 			'm': {
@@ -39,10 +40,12 @@ def process_file(name: str, data):
 				'i': cur_index,
 				'l': 0,
 				'nc': 0,
-				'nv': 0
+				'nv': 0,
+				'bn': book_no
 			},
 			'v': []
 		}
+		book_no += 1
 		for chapter, chapter_data in book_data.items():
 			cur_chapter = {
 				'm': {
