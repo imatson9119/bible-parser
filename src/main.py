@@ -20,6 +20,7 @@ def process_input():
 def process_file(name: str, data):
 	raw_bible = data[0]
 	word_map = {}
+	letter_map = {}
 	cur_index = 0
 	cur_bible = {
 		'm': {
@@ -67,6 +68,7 @@ def process_file(name: str, data):
 					'v': verse_text
 				}
 				add_to_word_map(word_map, verse_text, cur_index)
+				add_to_letter_map(letter_map, verse_text, cur_index)
 				cur_index += len(verse_text)
 				cur_chapter['v'].append(cur_verse)
 
@@ -89,6 +91,9 @@ def process_file(name: str, data):
 	
 	with open(f'word_maps/{name}.json', 'w+') as file:
 		json.dump(word_map, file)
+
+	with open(f'letter_maps/{name}.json', 'w+') as file:
+		json.dump(letter_map, file)
 				
 def add_to_word_map(word_map, verse_text, cur_index):
 	for index, word in enumerate(verse_text):
@@ -97,6 +102,18 @@ def add_to_word_map(word_map, verse_text, cur_index):
 			word_map[sanitized_word] = [index + cur_index]
 		else:
 			word_map[sanitized_word].append(index + cur_index)
+
+def add_to_letter_map(letter_map, verse_text, cur_index):
+	for index, word in enumerate(verse_text):
+		sanitized_word = pattern.sub('', word).lower()
+		if len(sanitized_word) == 0:
+			print(f'Empty word found: {word}')
+			print(verse_text)
+			continue;
+		if sanitized_word[0] not in letter_map:
+			letter_map[sanitized_word[0]] = [index + cur_index]
+		else:
+			letter_map[sanitized_word[0]].append(index + cur_index)
 				
 def sanitize_verse(verse):
 	# Add spaces around em dashes to split connected words
